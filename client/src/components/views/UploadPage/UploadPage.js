@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Typography, Button, Form, message, Input, Icon } from 'antd';
-import FileUpload from '../../utils/FileUpload'
+//import FileUpload from '../../utils/FileUpload'
 import Axios from 'axios';
 
 const { Title } = Typography;
@@ -16,7 +16,7 @@ const Department = [
   { key: 7, value: "세무" }
 ]
 
-function UploadPage() {
+function UploadPage(props) {
 
   const [TitleValue, setTitleValue] = useState("")
   const [CasenumberValue, setCasenumberValue] = useState("")
@@ -24,7 +24,9 @@ function UploadPage() {
   const [SummaryValue, setSummaryValue] = useState("")
   const [DatanumberValue, setDatanumberValue] = useState("")
   const [DepartmentValue, setDepartmentValue] = useState(1)
-
+  const [HoldingValue, setHoldingValue] = useState("")
+  const [JmreferenceValue, setJmreferenceValue] = useState("")
+  const [PrreferenceValue, setPrreferenceValue] = useState("")
 
   const onTitleChange = (event) => {
       setTitleValue(event.currentTarget.value)
@@ -50,40 +52,55 @@ function UploadPage() {
       setDepartmentValue(event.currentTarget.value)
   }
 
-  /*
-  const onSubmit = (event) => {
+  const onHoldingChange = (event) => {
+    setHoldingValue(event.currentTarget.value)
+}
+
+const onJmreferenceChange = (event) => {
+    setJmreferenceValue(event.currentTarget.value)
+}
+
+const onPrreferenceChange = (event) => {
+    setPrreferenceValue(event.currentTarget.value)
+}
+
+
+const onSubmit = (event) => {
         event.preventDefault();
 
 
-        if (!TitleValue || !DescriptionValue || !PriceValue ||
-            !ContinentValue || !Images) {
-            return alert('fill all the fields first!')
+        if (!TitleValue || !DescriptionValue || !CasenumberValue || !SummaryValue || !DatanumberValue || !HoldingValue || !JmreferenceValue || !PrreferenceValue ||
+            !DepartmentValue ) {
+            return alert('모든 값을 넣어주셔야 합니다.')
         }
 
+        //서버에 채운 값들을 request로 보냅니다.
         const variables = {
             writer: props.user.userData._id,
             title: TitleValue,
             description: DescriptionValue,
-            price: PriceValue,
-            images: Images,
-            continents: ContinentValue,
+            casenumber: CasenumberValue,
+            holding: HoldingValue,
+            summary: SummaryValue,
+            department: DepartmentValue,
+            datanumber: DatanumberValue,
+            jmreference: JmreferenceValue,
+            prreference: PrreferenceValue
         }
 
-        Axios.post('/api/product/uploadProduct', variables)
+        Axios.post('/api/case', variables) ///api/case/uploadCase로 수정할 수도 있음
             .then(response => {
                 if (response.data.success) {
-                    alert('Product Successfully Uploaded')
+                    alert('판례가 성공적으로 업로드 되었습니다.')
                     props.history.push('/')
                 } else {
-                    alert('Failed to upload Product')
+                    alert('판례 업로드를 실패하였습니다.')
                 }
             })
+} 
 
-    } 
-  */
-
-  //사건명 = Title, 사건번호 = Casenumber, 사건종류코드,
-  //판시사항, 판결요지 = summary , 참조조문, 참조판례, 판례내용 = description , 판례일련번호 = Datanumber
+  //사건명 = Title, 사건번호 = Casenumber, 사건종류코드 = Casecode,
+  //판시사항 = Holding , 판결요지 = Summary , 참조조문 = Jmreference, 참조판례 = Prreference, 판례내용 = Description , 판례일련번호 = Datanumber
   //사건대상(사건종류명) = Department, 법분야와 소관부처는 추후에 추가 고민해보기
 
 
@@ -93,7 +110,7 @@ function UploadPage() {
           <h2>판례 정보 업로드</h2>
       </div>
 
-      <Form>
+      <Form onSubmitCapture={onSubmit}>
         {/* DropZone */}
         <br />
 
@@ -124,13 +141,11 @@ function UploadPage() {
         <br />
 
         <br />
-        <label>사건종류코드</label>
-        <Input/>
-        <br />
-
-        <br />
         <label>판시사항</label>
-        <Input/>
+        <TextArea
+            onChange={onHoldingChange}
+            value={HoldingValue}
+         />
         <br />
 
         <br />
@@ -143,12 +158,18 @@ function UploadPage() {
 
         <br />
         <label>참조조문</label>
-        <Input/>
+        <Input
+            onChange={onJmreferenceChange} 
+            value={JmreferenceValue}   
+        />
         <br />
 
         <br />
         <label>참조판례</label>
-        <Input/>
+        <Input
+            onChange={onPrreferenceChange} 
+            value={PrreferenceValue}   
+        />
         <br />
 
         <br />
@@ -168,7 +189,7 @@ function UploadPage() {
         <br />
         <br />
 
-        <Button>
+        <Button htmlType='submit'>
             확인
         </Button>
 
